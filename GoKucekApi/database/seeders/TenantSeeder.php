@@ -12,14 +12,14 @@ class TenantSeeder extends Seeder
     {
         $tenants = [
             [
-                'name'          => 'Radius One ',
-                'slug'          => 'radiusone',
+                'name'          => 'Gokucek',
+                'slug'          => 'gokucek',
                 'code'          => 'TEN-001',
                 'domain'        => 'localhost',
-                'email'         => 'admin@radiusone.test',
+                'email'         => 'admin@gokucek.test',
                 'phone'         => '02112345678',
                 'address'       => 'Jakarta, Indonesia',
-                'logo_path'     => '/projects/radiusone/logo.png',
+                'logo_path'     => '/projects/logo.png',
                 'primary_color' => '#2563EB',
                 'theme'         => 'light',
                 'is_active'     => true,

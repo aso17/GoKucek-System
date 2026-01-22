@@ -52,7 +52,7 @@ class AuthController extends Controller
                 'tenant' => [
                     'slug' => $user->tenant->slug ?? null,
                      'logo_path'      => $user->tenant->logo_path
-                        ? asset("storage/{$user->tenant->logo_path}")
+                        ? asset("storage{$user->tenant->logo_path}")
                         : null,
                 ],
             ],

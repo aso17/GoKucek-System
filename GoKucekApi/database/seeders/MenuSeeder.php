@@ -12,29 +12,29 @@ class MenuSeeder extends Seeder
     {
         $now = Carbon::now();
 
-        $mainModuleId    = DB::table('Ms_modules')->where('code', 'MAIN')->value('id');
-        $systemModuleId  = DB::table('Ms_modules')->where('code', 'SYSTEM')->value('id');
+        // Mengambil ID Module yang relevan
+        $mainModId = DB::table('Ms_modules')->where('code', 'MAIN')->value('id');
+        $prodModId = DB::table('Ms_modules')->where('code', 'PROD')->value('id');
+        $mstrModId = DB::table('Ms_modules')->where('code', 'MSTR')->value('id');
+        $fincModId = DB::table('Ms_modules')->where('code', 'FINC')->value('id');
+        $systModId = DB::table('Ms_modules')->where('code', 'SYST')->value('id');
 
         /*
         |--------------------------------------------------------------------------
-        | MAIN MENU (FLAT SAJA)
+        | 1. MAIN MENU (DASHBOARD & KASIR)
         |--------------------------------------------------------------------------
+        | Ikon disesuaikan untuk aktivitas utama laundry.
         */
-        $flatMenus = [
-            ['DASHBOARD', 'Dashboard', 'home', '/', 1],
-            ['ROUTER', 'Router', 'server', '/servernas', 2],
-            ['MITRA', 'Mitra', 'users', '/mitra', 3],
-            ['OLT', 'OLT', 'grid', '/olt', 7],
-            ['GENIE_ACS', 'GenieACS', 'settings-2', '/genieacs', 8],
-            ['ODP', 'ODP', 'box', '/odp', 9],
-            ['TIKET', 'Tiket', 'ticket', '/tiket', 10],
-            ['TRANSAKSI', 'Transaksi', 'shuffle', '/transaksi', 12],
-            ['WHATSAPP', 'WhatsApp', 'message-circle', '/whatsapp', 13],
+        $mainMenus = [
+            ['DASHBOARD', 'Dashboard', 'layout', '/dashboard', 1],
+            ['POS_TRANSAKSI', 'Kasir / Order Baru', 'shopping-cart', '/transaksi/baru', 2],
+            ['ORDER_LIST', 'Daftar Semua Pesanan', 'clipboard', '/orders', 3],
+            ['WHATSAPP_NOTIF', 'WhatsApp Gateway', 'message-square', '/whatsapp', 13],
         ];
 
-        foreach ($flatMenus as $menu) {
+        foreach ($mainMenus as $menu) {
             DB::table('Ms_menus')->insert([
-                'module_id'  => $mainModuleId,
+                'module_id'  => $mainModId,
                 'code'       => $menu[0],
                 'menu_name'  => $menu[1],
                 'icon'       => $menu[2],
@@ -49,14 +49,15 @@ class MenuSeeder extends Seeder
 
         /*
         |--------------------------------------------------------------------------
-        | VOUCHER (PARENT + CHILD)
+        | 2. OPERASIONAL / PRODUKSI (PARENT + CHILD)
         |--------------------------------------------------------------------------
+        | Alur kerja dari cucian masuk sampai siap ambil.
         */
-        $voucherId = DB::table('Ms_menus')->insertGetId([
-            'module_id'  => $mainModuleId,
-            'code'       => 'VOUCHER',
-            'menu_name'  => 'Voucher',
-            'icon'       => 'wifi',
+        $prodParentId = DB::table('Ms_menus')->insertGetId([
+            'module_id'  => $prodModId,
+            'code'       => 'PRODUCTION',
+            'menu_name'  => 'Operasional Dapur',
+            'icon'       => 'refresh-cw',
             'route_name' => null,
             'parent_id'  => null,
             'order_no'   => 4,
@@ -65,23 +66,21 @@ class MenuSeeder extends Seeder
             'updated_at' => $now,
         ]);
 
-        $voucherChildren = [
-            ['VOUCHER_PROFILE', 'Profile Voucher', '/voucher'],
-            ['VOUCHER_STOCK', 'Stok Voucher', '/stock'],
-            ['VOUCHER_SOLD', 'Voucher Terjual', '/sold'],
-            ['VOUCHER_ONLINE', 'Voucher Online', 'online'],
-            ['VOUCHER_RECAP', 'Rekap Voucher', '/recap'],
-            ['VOUCHER_TEMPLATE', 'Template Manager', '/vouchertemplate'],
+        $prodChildren = [
+            ['PROD_WASH', 'Proses Cuci', '/prod/washing'],
+            ['PROD_IRON', 'Proses Setrika', '/prod/ironing'],
+            ['PROD_PACK', 'Packing & QC', '/prod/packing'],
+            ['PROD_READY', 'Siap Diambil/Kirim', '/prod/ready'],
         ];
 
-        foreach ($voucherChildren as $i => $child) {
+        foreach ($prodChildren as $i => $child) {
             DB::table('Ms_menus')->insert([
-                'module_id'  => $mainModuleId,
+                'module_id'  => $prodModId,
                 'code'       => $child[0],
                 'menu_name'  => $child[1],
-                'icon'       => 'circle',
+                'icon'       => 'layers', // Ikon tumpukan tugas
                 'route_name' => $child[2],
-                'parent_id'  => $voucherId,
+                'parent_id'  => $prodParentId,
                 'order_no'   => $i + 1,
                 'is_active'  => true,
                 'created_at' => $now,
@@ -91,14 +90,14 @@ class MenuSeeder extends Seeder
 
         /*
         |--------------------------------------------------------------------------
-        | LANGGANAN (PARENT + CHILD)
+        | 3. MASTER DATA (PELANGGAN & LAYANAN)
         |--------------------------------------------------------------------------
         */
-        $langgananId = DB::table('Ms_menus')->insertGetId([
-            'module_id'  => $mainModuleId,
-            'code'       => 'LANGGANAN',
-            'menu_name'  => 'Langganan',
-            'icon'       => 'user-check',
+        $mstrParentId = DB::table('Ms_menus')->insertGetId([
+            'module_id'  => $mstrModId,
+            'code'       => 'MASTER',
+            'menu_name'  => 'Master Data',
+            'icon'       => 'database',
             'route_name' => null,
             'parent_id'  => null,
             'order_no'   => 5,
@@ -107,21 +106,20 @@ class MenuSeeder extends Seeder
             'updated_at' => $now,
         ]);
 
-        $langgananChildren = [
-            ['PROFILE_PELANGGAN', 'Profile Pelanggan', '/langganan/profile'],
-            ['DATA_PELANGGAN', 'Data Pelanggan', '/langganan/data'],
-            ['STOP_BERLANGGAN', 'Stop Berlanggan', '/langganan/stop'],
-            ['ONLINE_LANGGANAN', 'Langganan Online', '/langganan/online'],
+        $mstrChildren = [
+            ['MSTR_CUSTOMER', 'Data Pelanggan', '/master/customer'],
+            ['MSTR_SERVICE', 'Layanan & Harga', '/master/services'],
+            ['MSTR_COUPON', 'Kupon & Diskon', '/master/coupons'],
         ];
 
-        foreach ($langgananChildren as $i => $child) {
+        foreach ($mstrChildren as $i => $child) {
             DB::table('Ms_menus')->insert([
-                'module_id'  => $mainModuleId,
+                'module_id'  => $mstrModId,
                 'code'       => $child[0],
                 'menu_name'  => $child[1],
-                'icon'       => 'circle',
+                'icon'       => 'users',
                 'route_name' => $child[2],
-                'parent_id'  => $langgananId,
+                'parent_id'  => $mstrParentId,
                 'order_no'   => $i + 1,
                 'is_active'  => true,
                 'created_at' => $now,
@@ -131,51 +129,13 @@ class MenuSeeder extends Seeder
 
         /*
         |--------------------------------------------------------------------------
-        | MAP (PARENT + CHILD)
+        | 4. FINANCE (BILING & LAPORAN)
         |--------------------------------------------------------------------------
         */
-        $mapId = DB::table('Ms_menus')->insertGetId([
-            'module_id'  => $mainModuleId,
-            'code'       => 'MAP',
-            'menu_name'  => 'Map',
-            'icon'       => 'map-pin',
-            'route_name' => null,
-            'parent_id'  => null,
-            'order_no'   => 6,
-            'is_active'  => true,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
-
-        $mapChildren = [
-            ['MAP_PELANGGAN', 'Map pelanggan', '/map/pelanggan'],
-            ['MAP_ODP', 'Map ODP', '/map/odp'],
-        ];
-
-        foreach ($mapChildren as $i => $child) {
-            DB::table('Ms_menus')->insert([
-                'module_id'  => $mainModuleId,
-                'code'       => $child[0],
-                'menu_name'  => $child[1],
-                'icon'       => 'circle',
-                'route_name' => $child[2],
-                'parent_id'  => $mapId,
-                'order_no'   => $i + 1,
-                'is_active'  => true,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ]);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | BILLING (PARENT + CHILD)
-        |--------------------------------------------------------------------------
-        */
-        $billingId = DB::table('Ms_menus')->insertGetId([
-            'module_id'  => $mainModuleId,
-            'code'       => 'BILLING',
-            'menu_name'  => 'Billing',
+        $billingParentId = DB::table('Ms_menus')->insertGetId([
+            'module_id'  => $fincModId,
+            'code'       => 'FINANCE',
+            'menu_name'  => 'Keuangan',
             'icon'       => 'credit-card',
             'route_name' => null,
             'parent_id'  => null,
@@ -186,21 +146,20 @@ class MenuSeeder extends Seeder
         ]);
 
         $billingChildren = [
-            ['BILLING_INVOICE_UNPAID', 'Invoice unpaid', '/billing/invoice-unpaid'],
-            ['BILLING_INVOICE_PAID', 'Invoice paid', '/billing/invoice-paid'],
-            ['BILLING_TOPUP', 'TopUp saldo', '/billing/topup'],
-            ['BILLING_MUTASI', 'Mutasi saldo', '/billing/mutasi'],
-            ['BILLING_KUPON', 'Kupon diskon', '/billing/kupon'],
+            ['FINC_INVOICE_UNPAID', 'Tagihan Belum Bayar', '/finance/unpaid'],
+            ['FINC_INVOICE_PAID', 'Riwayat Pendapatan', '/finance/paid'],
+            ['FINC_EXPENSE', 'Biaya Pengeluaran', '/finance/expense'],
+            ['FINC_REPORT', 'Laporan Laba/Rugi', '/finance/report'],
         ];
 
         foreach ($billingChildren as $i => $child) {
             DB::table('Ms_menus')->insert([
-                'module_id'  => $mainModuleId,
+                'module_id'  => $fincModId,
                 'code'       => $child[0],
                 'menu_name'  => $child[1],
-                'icon'       => 'circle',
+                'icon'       => 'file-text',
                 'route_name' => $child[2],
-                'parent_id'  => $billingId,
+                'parent_id'  => $billingParentId,
                 'order_no'   => $i + 1,
                 'is_active'  => true,
                 'created_at' => $now,
@@ -210,19 +169,18 @@ class MenuSeeder extends Seeder
 
         /*
         |--------------------------------------------------------------------------
-        | SYSTEM (BAGIAN BAWAH)
+        | 5. SYSTEM (PENGATURAN TEKNIS)
         |--------------------------------------------------------------------------
         */
         $systemMenus = [
-            ['SETTING', 'Setting', 'settings', '/setting', 20],
-            ['TOOLS', 'Tools', 'tool', '/tools', 21],
-            ['ADMIN', 'Admin', 'user-cog', '/admin', 22],
-            ['LOGS', 'Logs', 'info', '/logs', 23],
+            ['SETTING', 'Pengaturan Toko', 'settings', '/system/setting', 20],
+            ['ADMIN_MGMT', 'Manajemen Staff', 'user-check', '/system/admin', 22],
+            ['LOGS', 'Log Aktivitas', 'activity', '/system/logs', 23],
         ];
 
         foreach ($systemMenus as $menu) {
             DB::table('Ms_menus')->insert([
-                'module_id'  => $systemModuleId,
+                'module_id'  => $systModId,
                 'code'       => $menu[0],
                 'menu_name'  => $menu[1],
                 'icon'       => $menu[2],

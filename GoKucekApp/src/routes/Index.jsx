@@ -21,7 +21,7 @@ export default function AppRoutes() {
           <Route element={<DashboardLayout />}>
             {/* Default / Dashboard */}
             <Route
-              path="/"
+              path="/dashboard"
               element={
                 <RequirePermission permission="view">
                   <Dashboard />

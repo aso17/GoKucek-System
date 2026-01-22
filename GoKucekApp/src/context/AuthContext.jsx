@@ -30,6 +30,7 @@ export const AuthProvider = ({ children }) => {
   const loadMenus = async () => {
     try {
       const { data } = await getMenus();
+      // console.log("Fetched menus:", data);
       const menuData = data.menus || [];
       setMenus(menuData);
       return menuData;

@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class UsersSeeder extends Seeder
@@ -14,76 +13,74 @@ class UsersSeeder extends Seeder
     {
         $now = Carbon::now();
 
-        // Ambil roles (key by code)
+        // 1. Ambil roles yang baru (OWNER, CASHIER, dll)
         $roles = DB::table('Ms_roles')
-            ->whereIn('code', ['SUPER_ADMIN', 'ADMIN', 'USER'])
+            ->whereIn('code', ['OWNER', 'ADMIN', 'CASHIER', 'PRODUCTION'])
             ->pluck('id', 'code')
             ->toArray();
 
-        // Ambil tenant default
+        // 2. Ambil tenant default (Outlet Utama GoKucek)
         $defaultTenantId = DB::table('Ms_tenants')
             ->where('code', 'TEN-001')
             ->value('id');
 
         if (!$defaultTenantId) {
-            throw new \Exception('Tenant default (code: TEN-001) belum ada. Jalankan TenantsSeeder dulu.');
+            // Kita buatkan tenant default jika belum ada supaya tidak error
+            $defaultTenantId = DB::table('Ms_tenants')->insertGetId([
+                'code' => 'TEN-001',
+                'name' => 'GoKucek Pusat',
+                'is_active' => true,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
         }
 
+        // 3. Daftar User sesuai Role Laundry
         $users = [
             [
-                'full_name' => 'Super Admin',
-                'username'  => 'superadmin',
-                'email'     => 'sa@local.id',
-                'role_code' => 'SUPER_ADMIN',
+                'full_name' => 'Aso Owner',
+                'username'  => 'aso_owner',
+                'email'     => 'owner@gokucek.id',
+                'role_code' => 'OWNER',
             ],
             [
-                'full_name' => 'Administrator',
-                'username'  => 'admin',
-                'email'     => 'admin@local.id',
-                'role_code' => 'ADMIN',
+                'full_name' => 'Kasir Utama',
+                'username'  => 'kasir1',
+                'email'     => 'kasir@gokucek.id',
+                'role_code' => 'CASHIER',
             ],
             [
-                'full_name' => 'User',
-                'username'  => 'user',
-                'email'     => 'user@local.id',
-                'role_code' => 'USER',
+                'full_name' => 'Tim Cuci',
+                'username'  => 'tukang_cuci',
+                'email'     => 'produksi@gokucek.id',
+                'role_code' => 'PRODUCTION',
             ],
         ];
 
         $payload = collect($users)->map(function ($user) use ($roles, $defaultTenantId, $now) {
             return [
-                'full_name'          => $user['full_name'],
-                'username'           => $user['username'],
-                'email'              => $user['email'],
-                'password'           => Hash::make('P@ssw0rd123456'),
+                'full_name'         => $user['full_name'],
+                'username'          => $user['username'],
+                'email'             => $user['email'],
+                'password'          => Hash::make('P@ssw0rd12345'), // Password default
 
-                // Status & security
-                'is_active'          => true,
-                'status'             => 'active',
-                'email_verified_at'  => $now,
-                'last_login_at'      => null,
-                'last_login_ip'      => null,
-                'last_activity_at'   => null,
+                'is_active'         => true,
+                'status'            => 'active',
+                'email_verified_at' => $now,
+                
+                'role_id'           => $roles[$user['role_code']] ?? null,
+                'tenant_id'         => $defaultTenantId,
 
-                // Optional profile
-                'phone'              => null,
-                'avatar'             => null,
-
-                // Relation
-                'role_id'            => $roles[$user['role_code']] ?? null,
-                'tenant_id'          => $defaultTenantId,
-
-                // Audit
-                'created_at'         => $now,
-                'updated_at'         => $now,
+                'created_at'        => $now,
+                'updated_at'        => $now,
             ];
         })->toArray();
 
-        // Gunakan upsert agar tidak dobel saat seeding ulang
+        // Menggunakan upsert agar aman saat dijalankan berkali-kali
         DB::table('Ms_users')->upsert(
             $payload,
-            ['email'], // unique key
-            ['full_name','username','role_id','tenant_id','status','is_active','updated_at']
+            ['email'], // Kunci unik
+            ['full_name', 'username', 'role_id', 'tenant_id', 'updated_at']
         );
     }
 }
