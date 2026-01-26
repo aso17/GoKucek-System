@@ -44,11 +44,12 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const { data } = await loginApi(credentials);
+
       SetWithExpiry("access_token", data.token, 1440);
       SetWithExpiry("user", data.user, 1440);
-
-      localStorage.setItem("project_name", data.user.tenant.slug);
-      localStorage.setItem("project_logo_path", data.user.tenant.logo_path);
+      localStorage.setItem("tenant_name", data.user.tenant.slug);
+      localStorage.setItem("tenant_logo_path", data.user.tenant.logo_path);
+      localStorage.setItem("tenant_code", data.user.tenant.code);
 
       setUser(data.user);
 
@@ -64,10 +65,14 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       console.error("Logout API failed", err);
     } finally {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("user");
-      localStorage.removeItem("project_name");
-      localStorage.removeItem("project_logo_path");
+      [
+        "access_token",
+        "user",
+        "tenant_name",
+        "tenant_logo_path",
+        "tenant_code",
+        "last_allowed_route",
+      ].forEach((key) => localStorage.removeItem(key));
 
       setUser(null);
       setMenus([]);

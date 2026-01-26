@@ -78,9 +78,6 @@ export default function Topbar({ onToggleSidebar }) {
           <button className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-gray-100">
             <User size={16} /> Profil
           </button>
-          <button className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-gray-100">
-            <Settings size={16} /> Pengaturan
-          </button>
           <div className="h-px bg-gray-200 my-1" />
           <button
             onClick={handleLogout}

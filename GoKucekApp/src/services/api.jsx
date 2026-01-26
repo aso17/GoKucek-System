@@ -1,6 +1,6 @@
 import axios from "axios";
 import { showToast } from "../utils/Toast";
-import { getWithExpiry } from "../utils/SetWithExpiry";
+import { GetWithExpiry } from "../utils/SetWithExpiry";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api",
@@ -14,7 +14,7 @@ const api = axios.create({
 // --- Request Interceptor ---
 api.interceptors.request.use(
   (config) => {
-    const token = getWithExpiry("access_token");
+    const token = GetWithExpiry("access_token");
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

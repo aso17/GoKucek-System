@@ -22,7 +22,14 @@ export function ProjectProvider({ children }) {
     const fetchProjectInfo = async () => {
       try {
         isFetched.current = true;
-        const res = await api.get("/project-info");
+        const code = localStorage.getItem("tenant_code");
+        // console.log("Fetching project info for code:", code);
+        const res = await api.get("/project-info", {
+          headers: {
+            "X-Tenant-Code": code,
+          },
+        });
+        // console.log("Fetched project info:", res.data);
         setProject(res.data);
       } catch (err) {
         console.error("Failed to fetch project info", err);

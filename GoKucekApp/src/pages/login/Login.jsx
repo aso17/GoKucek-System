@@ -4,14 +4,12 @@ import { ProjectContext } from "../../context/ProjectContext";
 import { useAuth } from "../../context/AuthContext";
 import LoadingDots from "../../components/common/LoadingDots";
 import AppHead from "../../components/common/AppHead";
-// Import Toast dihapus karena sudah ada di App.jsx
 import LoginForm from "./LoginForm";
 
 export default function Login() {
   const { project, loading } = useContext(ProjectContext);
   const { login: loginFromContext } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // State toastMessage dan toastType dihapus
   const navigate = useNavigate();
 
   const handleLogin = async (values) => {

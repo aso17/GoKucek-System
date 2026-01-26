@@ -24,13 +24,15 @@ export default function Sidebar() {
       <div className="px-6 py-8 flex items-center gap-3">
         <div className="bg-white rounded-lg p-1.5 flex-shrink-0">
           <img
-            src={localStorage.getItem("project_logo_path")}
+            src={localStorage.getItem("tenant_logo_path")}
             alt="GoKucek"
             className="w-7 h-7 object-contain"
           />
         </div>
         <div className="leading-tight">
-          <h1 className="text-sm font-bold">GoKucek</h1>
+          <h1 className="text-sm font-bold">
+            {localStorage.getItem("tenant_name") || "GoKucek"}
+          </h1>
           <p className="text-[10px] text-white/60 font-medium">versi 1.0</p>
         </div>
       </div>

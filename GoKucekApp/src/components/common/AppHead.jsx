@@ -7,9 +7,9 @@ export default function AppHead({ title }) {
   useEffect(() => {
     // 🔹 Ambil project info dari context dulu, fallback ke localStorage, fallback terakhir "Application"
     const projectName =
-      project?.name || localStorage.getItem("project_name") || "Application";
+      project?.name || localStorage.getItem("tenant_name") || "Application";
     const projectLogo =
-      project?.logo_path || localStorage.getItem("project_logo_path");
+      project?.logo_path || localStorage.getItem("tenant_logo_path");
 
     // 🔹 Set document.title, utamakan prop title
     document.title = title ? `${title} | ${projectName}` : projectName;
@@ -24,12 +24,7 @@ export default function AppHead({ title }) {
       }
       link.href = projectLogo;
     }
-
-    // 🔹 Simpan project info ke localStorage agar tetap tersedia
-    if (project?.name) localStorage.setItem("project_name", project.name);
-    if (project?.logo_path)
-      localStorage.setItem("project_logo_path", project.logo_path);
-  }, [project, title]); // 🔹 Jalankan ulang tiap project atau title berubah
+  }, [project, title]);
 
   return null;
 }

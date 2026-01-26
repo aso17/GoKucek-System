@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import DashboardLayout from "../layouts/DashboardLayout";
 import Dashboard from "../pages/dashboard/Dashboard";
+import UsersPage from "../pages/users/UsersList";
 import LoginPage from "../pages/login/Login";
-// import ServerNasList from "../pages/servernas/ServerNasList";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
 import RequirePermission from "../guards/RequirePermission";
@@ -29,17 +29,15 @@ export default function AppRoutes() {
               }
             />
 
-            {/*
-              Contoh route lain:
-              <Route
-                path="/users"
-                element={
-                  <RequirePermission permission="view">
-                    <UsersPage />
-                  </RequirePermission>
-                }
-              />
-            */}
+            {/* Users Management */}
+            <Route
+              path="/userlist"
+              element={
+                <RequirePermission permission="view">
+                  <UsersPage />
+                </RequirePermission>
+              }
+            />
           </Route>
         </Route>
       </Routes>

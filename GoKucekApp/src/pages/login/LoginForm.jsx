@@ -39,7 +39,7 @@ export default function LoginForm({ project, isSubmitting, onSubmit }) {
           value={values.email}
           onChange={(e) => handleChange("email", e.target.value)}
           className={inputClasses({ error: !!errors.email })}
-          placeholder="e.g. name@company.com"
+          placeholder=""
         />
         {errors.email && (
           <p className="text-xs text-red-500 mt-1 ml-1">{errors.email}</p>
@@ -61,7 +61,7 @@ export default function LoginForm({ project, isSubmitting, onSubmit }) {
               error: !!errors.password,
               extra: "pr-12",
             })}
-            placeholder="••••••••••••"
+            placeholder=""
           />
           <button
             type="button"

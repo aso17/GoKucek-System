@@ -12,7 +12,7 @@ export const SetWithExpiry = (key, value, ttlInMinutes) => {
   localStorage.setItem(key, JSON.stringify(item));
 };
 
-export const getWithExpiry = (key) => {
+export const GetWithExpiry = (key) => {
   const itemStr = localStorage.getItem(key);
 
   // Jika data tidak ada
