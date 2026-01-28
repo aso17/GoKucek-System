@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Ms_user;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class UserController extends Controller
@@ -28,6 +29,7 @@ class UserController extends Controller
         'is_active',
         'role_id',
         'tenant_id',
+        'avatar',
         'created_at'
     )->with([
         'role:id,role_name,code',
@@ -133,6 +135,7 @@ class UserController extends Controller
             'username'  => "nullable|unique:Ms_users,username,$id",
             'role_id'   => 'nullable|exists:Ms_roles,id',
             'tenant_id' => 'nullable|exists:Ms_tenants,id',
+            'avatar'    => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $user->update($r->only([
@@ -143,8 +146,28 @@ class UserController extends Controller
             $user->update(['password' => Hash::make($r->password)]);
         }
 
-        return response()->json($user);
+        // 🔥 HANDLE AVATAR
+        if ($r->hasFile('avatar')) {
+        
+            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+
+            // Simpan file baru
+            $file = $r->file('avatar');
+            $filename = 'avatar_' . time() . '_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('avatars', $filename, 'public');
+
+            $user->update(['avatar' => $path]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User berhasil diupdate',
+            'data'    => $user,
+        ]);
     }
+
 
     // DELETE /user/{id}
     public function destroy($id)

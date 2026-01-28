@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('email', 150)->unique();
             $table->string('username', 50)->unique()->nullable();
             $table->string('password', 255); // bcrypt / argon2
-
             $table->string('phone', 20)->nullable();       // E.164 format
             $table->string('avatar', 225)->nullable();     // path file saja
 

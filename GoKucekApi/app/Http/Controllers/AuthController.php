@@ -20,6 +20,7 @@ class AuthController extends Controller
             'email',
             'password',
             'role_id',
+            'avatar',
             'tenant_id'
             ) 
             ->with([
@@ -49,6 +50,7 @@ class AuthController extends Controller
                 'email'     => $user->email,
                 'role_id'   => $user->role_id,
                 'tenant_id' => $user->tenant_id,
+                'avatar'   => $user->avatar,
                 'tenant' => [
                     'slug' => $user->tenant->slug ?? null,
                     'code' => $user->tenant->code ?? null,
