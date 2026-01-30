@@ -36,11 +36,12 @@ class MenuSeeder extends Seeder
             ['module'=>'REPORT','menu_name'=>'Harian','code'=>'RPT_DAILY','route_name'=>'/laporan/harian','icon'=>'calendar','order_no'=>1,'parent'=>'RPT_PARENT'],
             ['module'=>'REPORT','menu_name'=>'Bulanan','code'=>'RPT_MONTHLY','route_name'=>'/laporan/bulanan','icon'=>'calendar','order_no'=>2,'parent'=>'RPT_PARENT'],
 
-            // SETTING
+           // SETTING
             ['module'=>'SETTING','menu_name'=>'Pengaturan','code'=>'SET_PARENT','route_name'=>null,'icon'=>'settings','order_no'=>6,'parent'=>null],
-            ['module'=>'SETTING','menu_name'=>'User & Role','code'=>'SET_USER_ROLE','route_name'=>'/userlist','icon'=>'shield','order_no'=>1,'parent'=>'SET_PARENT'],
-            ['module'=>'SETTING','menu_name'=>'Aplikasi','code'=>'SET_APP','route_name'=>'/settingapp','icon'=>'sliders','order_no'=>2,'parent'=>'SET_PARENT'],
-        ];
+            ['module'=>'SETTING','menu_name'=>'Manajemen User','code'=>'SET_USER','route_name'=>'/userlist','icon'=>'users','order_no'=>1,'parent'=>'SET_PARENT'],
+            ['module'=>'SETTING','menu_name'=>'Role & Permission','code'=>'SET_ROLE','route_name'=>'/rolelist','icon'=>'shield','order_no'=>2,'parent'=>'SET_PARENT'],
+            ['module'=>'SETTING','menu_name'=>'Aplikasi','code'=>'SET_APP','route_name'=>'/settingapp','icon'=>'sliders','order_no'=>3,'parent'=>'SET_PARENT'],
+                    ];
 
         $menuMap = [];
 

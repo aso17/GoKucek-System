@@ -19,14 +19,12 @@ return new class extends Migration
             $table->string('password', 255); // bcrypt / argon2
             $table->string('phone', 20)->nullable();       // E.164 format
             $table->string('avatar', 225)->nullable();     // path file saja
-
             // Status & security
             $table->boolean('is_active')->default(true);       
             $table->timestampTz('email_verified_at')->nullable();
             $table->timestampTz('last_login_at')->nullable();
             $table->string('last_login_ip', 45)->nullable(); 
             $table->timestampTz('last_activity_at')->nullable();
-
             // Relation
             $table->foreignId('role_id')->nullable()->constrained('Ms_roles')->nullOnDelete();
             $table->foreignId('tenant_id')->nullable()->constrained('Ms_tenants')->nullOnDelete();

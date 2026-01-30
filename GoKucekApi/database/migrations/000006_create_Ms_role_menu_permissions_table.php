@@ -12,6 +12,11 @@ return new class extends Migration
             $table->id();
 
             // Relations
+            // Menambahkan tenant_id sebagai identitas utama SaaS
+            $table->foreignId('tenant_id')
+                ->constrained('Ms_tenants')
+                ->cascadeOnDelete();
+
             $table->foreignId('role_id')
                 ->constrained('Ms_roles')
                 ->cascadeOnDelete();
@@ -20,7 +25,6 @@ return new class extends Migration
                 ->constrained('Ms_modules')
                 ->cascadeOnDelete();
 
-            // IMPORTANT: menu_id covers ALL levels
             $table->foreignId('menu_id')
                 ->constrained('Ms_menus')
                 ->cascadeOnDelete();
@@ -39,10 +43,10 @@ return new class extends Migration
             $table->string('created_by', 50)->nullable();
             $table->timestamps();
 
-            // Prevent duplicates
-            $table->unique(['role_id', 'menu_id']);
+            // Prevent duplicates - Ditambahkan tenant_id ke unique constraint
+            // Agar satu menu dalam satu tenant tidak memiliki duplikasi role
+            $table->unique(['tenant_id', 'role_id', 'menu_id'], 'unique_tenant_role_menu');
         });
-
     }
 
     public function down(): void

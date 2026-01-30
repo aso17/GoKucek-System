@@ -4,18 +4,24 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class RoleMenuPermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        $roles = DB::table('Ms_roles')->pluck('id', 'code');
+        // 1. Ambil data Role lengkap dengan tenant_id-nya
+        $roles = DB::table('Ms_roles')->get(); 
         $menus = DB::table('Ms_menus')->get();
+        $now = Carbon::now();
 
-        foreach ($roles as $roleCode => $roleId) {
+        foreach ($roles as $role) {
             foreach ($menus as $menu) {
+                
+                // Identifikasi Menu Sensitif
+                $isSettingMenu = in_array($menu->code, ['SET_PARENT', 'SET_USER', 'SET_ROLE', 'SET_APP']);
 
-                // 🎯 Default: no access
+                // Default Permission (Kosong)
                 $permission = [
                     'can_view'   => false,
                     'can_create' => false,
@@ -24,8 +30,8 @@ class RoleMenuPermissionSeeder extends Seeder
                     'can_export' => false,
                 ];
 
-                // 🔥 SUPER ADMIN = FULL ACCESS SEMUA MENU
-                if ($roleCode === 'SUPER_ADMIN') {
+                // Logika Pembagian Hak Akses berdasarkan Role Code
+                if ($role->code === 'SUPER_ADMIN') {
                     $permission = [
                         'can_view'   => true,
                         'can_create' => true,
@@ -33,10 +39,8 @@ class RoleMenuPermissionSeeder extends Seeder
                         'can_delete' => true,
                         'can_export' => true,
                     ];
-                }
-
-                // ADMIN
-                elseif ($roleCode === 'ADMIN') {
+                } 
+                elseif ($role->code === 'ADMIN') {
                     $permission = [
                         'can_view'   => true,
                         'can_create' => true,
@@ -44,41 +48,43 @@ class RoleMenuPermissionSeeder extends Seeder
                         'can_delete' => true,
                         'can_export' => false,
                     ];
+                } 
+                elseif ($role->code === 'KASIR') {
+                    if (!$isSettingMenu) {
+                        $permission = [
+                            'can_view'   => true,
+                            'can_create' => true,
+                            'can_update' => false,
+                            'can_delete' => false,
+                            'can_export' => false,
+                        ];
+                    }
+                } 
+                elseif ($role->code === 'OWNER') {
+                    if (!$isSettingMenu) {
+                        $permission = [
+                            'can_view'   => true,
+                            'can_create' => false,
+                            'can_update' => false,
+                            'can_delete' => false,
+                            'can_export' => true,
+                        ];
+                    }
                 }
 
-                // KASIR
-                elseif ($roleCode === 'KASIR') {
-                    $permission = [
-                        'can_view'   => true,
-                        'can_create' => true,
-                        'can_update' => false,
-                        'can_delete' => false,
-                        'can_export' => false,
-                    ];
-                }
-
-                // OWNER
-                elseif ($roleCode === 'OWNER') {
-                    $permission = [
-                        'can_view'   => true,
-                        'can_create' => false,
-                        'can_update' => false,
-                        'can_delete' => false,
-                        'can_export' => true,
-                    ];
-                }
-
+                // Update atau Insert dengan Tenant Awareness
                 DB::table('Ms_role_menu_permissions')->updateOrInsert(
                     [
-                        'role_id' => $roleId,
-                        'menu_id' => $menu->id,
+                        'tenant_id' => $role->tenant_id, // WAJIB: Ambil dari role-nya
+                        'role_id'   => $role->id,
+                        'menu_id'   => $menu->id,
                     ],
                     [
                         'module_id'  => $menu->module_id,
                         'is_active'  => true,
                         'created_by' => 'SYSTEM',
-                        'created_at' => now(),
-                        'updated_at' => now(),
+                        'created_at' => $now,
+                        'updated_at' => $now,
                         ...$permission,
                     ]
                 );

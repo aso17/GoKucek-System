@@ -13,16 +13,16 @@ return new class extends Migration
     {
         Schema::create('Ms_roles', function (Blueprint $table) {
             $table->id();
-
-            // Identity
+            // Relasi ke Tenant
+            $table->foreignId('tenant_id')->constrained('Ms_tenants')->onDelete('cascade');          
             $table->string('role_name', 100);
-            $table->string('code', 50)->unique(); // ADMIN, USER, SUPER_ADMIN
-
-            // Status
+            $table->string('code', 50); // Hapus unique() di sini
+            $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);
-
-            // Audit
             $table->timestamps();
+            $table->softDeletes();
+            // Kode role unik hanya di dalam satu tenant yang sama
+            $table->unique(['tenant_id', 'code']); 
         });
     }
 

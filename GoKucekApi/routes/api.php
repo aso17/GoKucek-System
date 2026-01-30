@@ -41,6 +41,7 @@ Route::middleware('api')->group(function () {
         Route::delete('/user/{id}', [UserController::class, 'destroy']); // deleteUser
 
          // 👇 ROLE MODULE
+        Route::get('/GetRolesByTenant', [RoleController::class, 'GetRolesByTenantId']); 
         Route::get('/roles', [RoleController::class, 'index']); 
     });
 });

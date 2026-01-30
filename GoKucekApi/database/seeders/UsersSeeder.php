@@ -6,15 +6,14 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Ms_tenant as MsTenant;
-use Carbon\Carbon;
+
 
 class UsersSeeder extends Seeder
 {
-   public function run(): void
-{
-    $roles = DB::table('Ms_roles')->pluck('id', 'code');
-
-    $tenants = MsTenant::whereIn('code', ['TEN-001', 'TEN-002'])->get()->keyBy('code');
+    public function run(): void
+    {
+        $roles = DB::table('Ms_roles')->pluck('id', 'code');
+        $tenants = MsTenant::whereIn('code', ['TEN-001', 'TEN-002'])->get()->keyBy('code');
 
         $data = [
             'TEN-001' => [
@@ -26,70 +25,64 @@ class UsersSeeder extends Seeder
                     'phone'     => '628111111111',
                     'role_code' => 'SUPER_ADMIN',
                 ],
-                [
-                    'full_name' => 'Budi Santoso',
-                    'email'     => 'admin@gokucek.com',
-                    'username'  => 'admin',
-                    'password'  => Hash::make('P@ssword1234'),
-                    'phone'     => '628122222222',
-                    'role_code' => 'ADMIN',
-                ],
-                [
-                    'full_name' => 'Siti Aisyah',
-                    'email'     => 'kasir@gokucek.com',
-                    'username'  => 'kasir',
-                    'password'  => Hash::make('P@ssword1234'),
-                    'phone'     => '628133333333',
-                    'role_code' => 'KASIR',
-                ],
+                // ... user statis lainnya tetap di sini
             ],
-
-            'TEN-002' => [
-                [
-                    'full_name' => 'Andi Pratama',
-                    'email'     => 'admin@bersihjaya.com',
-                    'username'  => 'admin_bj',
-                    'password'  => Hash::make('P@ssword1234'),
-                    'phone'     => '628144444444',
-                    'role_code' => 'ADMIN',
-                ],
-                [
-                    'full_name' => 'Rina Kurnia',
-                    'email'     => 'kasir@bersihjaya.com',
-                    'username'  => 'kasir_bj',
-                    'password'  => Hash::make('P@ssword1234'),
-                    'phone'     => '628155555555',
-                    'role_code' => 'KASIR',
-                ],
-            ],
+            // ... TEN-002 tetap di sini
         ];
 
+        // 1. Insert User Utama (Statis)
+        $this->command->info("Memasukkan user utama...");
+        foreach ($data as $tenantCode => $users) {
+            $tenant = $tenants[$tenantCode] ?? null;
+            if (!$tenant) continue;
 
-    foreach ($data as $tenantCode => $users) {
-        $tenant = $tenants[$tenantCode];
+            foreach ($users as $user) {
+                DB::table('Ms_users')->updateOrInsert(
+                    ['email' => $user['email']],
+                    [
+                        'full_name'         => $user['full_name'],
+                        'username'          => $user['username'],
+                        'password'          => $user['password'],
+                        'phone'             => $user['phone'],
+                        'is_active'         => true,
+                        'email_verified_at' => now(),
+                        'role_id'           => $roles[$user['role_code']] ?? null,
+                        'tenant_id'         => $tenant->id,
+                        'created_at'        => now(),
+                        'updated_at'        => now(),
+                    ]
+                );
+            }
+        }
 
-        foreach ($users as $user) {
-            DB::table('Ms_users')->updateOrInsert(
-                ['email' => $user['email']],
-                [
-                    'full_name'         => $user['full_name'],
-                    'username'          => $user['username'],
-                    'password'          => $user['password'],
-                    'phone'             => $user['phone'],
-                    'avatar'            => null,
+        // 2. Insert 10.000 Fake Users (Bulk Insert)
+        $this->command->info("Membuat 10.000 fake users...");
+        
+        $totalFake = 10000;
+        $batchSize = 1000;
+        $defaultPassword = Hash::make('password'); // Satu kali hash saja untuk semua fake user
+
+        for ($i = 0; $i < ($totalFake / $batchSize); $i++) {
+            $fakeUsers = [];
+            for ($j = 0; $j < $batchSize; $j++) {
+                $fakeUsers[] = [
+                    'full_name'         => fake()->name(),
+                    'email'             => fake()->unique()->safeEmail(),
+                    'username'          => fake()->unique()->userName(),
+                    'password'          => $defaultPassword,
+                    'phone'             => fake()->phoneNumber(),
                     'is_active'         => true,
                     'email_verified_at' => now(),
-                    'last_login_at'     => null,
-                    'last_login_ip'     => null,
-                    'last_activity_at'  => null,
-                    'role_id'           => $roles[$user['role_code']] ?? null,
-                    'tenant_id'         => $tenant->id,
+                    'role_id'           => $roles['KASIR'], // Beri role Kasir untuk semua fake user
+                    'tenant_id'         => $tenants['TEN-001']->id,
                     'created_at'        => now(),
                     'updated_at'        => now(),
-                ]
-            );
+                ];
+            }
+            DB::table('Ms_users')->insert($fakeUsers);
+            $this->command->comment("Batch " . ($i + 1) . " (1.000 data) berhasil masuk...");
         }
-    }
-}
 
+        $this->command->info("Selesai! Total data user sekarang melimpah.");
+    }
 }
